@@ -1,38 +1,31 @@
 <template>
+<div
+    style="height: 100%; width: 100%;  display: flex; justify-content: center; align-items: center;"
+  >
  <v-form
+   style="height: 50%; width: 50%; "
     ref="form"
     v-model="valid"
     lazy-validation
   >
+<v-card width="100%" height="100%" style=" display: flex; flex-direction:column; align-items: center;">
+  <h1> เข้าสู่ระบบ</h1>
     <v-text-field
       v-model="name"
       :counter="10"
       :rules="nameRules"
-      label="Name"
+      label="ชิ่อ"
       required
     ></v-text-field>
 
     <v-text-field
       v-model="email"
       :rules="emailRules"
-      label="E-mail"
+      label="รหัสผ่าน"
       required
     ></v-text-field>
 
-    <v-select
-      v-model="select"
-      :items="items"
-      :rules="[v => !!v || 'Item is required']"
-      label="Item"
-      required
-    ></v-select>
-
-    <v-checkbox
-      v-model="checkbox"
-      :rules="[v => !!v || 'You must agree to continue!']"
-      label="Do you agree?"
-      required
-    ></v-checkbox>
+    
 
     <v-btn
       :disabled="!valid"
@@ -40,24 +33,13 @@
       class="mr-4"
       @click="validate"
     >
-      Validate
+        เข้าสู่ระบบ
     </v-btn>
 
-    <v-btn
-      color="error"
-      class="mr-4"
-      @click="reset"
-    >
-      Reset Form
-    </v-btn>
-
-    <v-btn
-      color="warning"
-      @click="resetValidation"
-    >
-      Reset Validation
-    </v-btn>
+    
+</v-card>
   </v-form>
+</div>
   </template>
 
 <<script>
@@ -84,18 +66,17 @@
       checkbox: false,
     }),
 
-    methods: {
-      validate () {
-        this.$refs.form.validate()
-      },
-      reset () {
-        this.$refs.form.reset()
-      },
-      resetValidation () {
-        this.$refs.form.resetValidation()
-      },
+   methods: {
+    login() {
+      if (this.$refs.form.validate(true)) {
+        localStorage.setItem("username", this.username);
+        this.$EventBus.$emit("getUsername");
+        this.$EventBus.$emit("checklogin");
+        this.$router.push({ path: "/" }).catch(() => {});
+       
+      }
     },
-  }
+   },};
 </script>
 <style>
 

@@ -145,7 +145,23 @@ export default {
         text: 'Frequently Asked Questions',
         href: 'https://vuetifyjs.com/getting-started/frequently-asked-questions'
       }
-    ]
-  })
+    ],
+    username:''
+  }),
+
+
+created() {
+    this.$EventBus.$on('getUsername', this.getUsername)
+    this.getUsername()
+  },
+  methods:{
+    getUsername(){
+      if(localStorage.getItem('username') !== null) {
+        this.username = localStorage.getItem('username')
+      } else {
+        this.username = 'Vuetify'
+      }
+    }
+  }
 }
 </script>

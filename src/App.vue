@@ -53,6 +53,7 @@ export default {
   methods: {
     goToLogin (){ 
       this.$router.push('/login')
+      
     }
   }
 }
