@@ -26,17 +26,30 @@
       </div>
 
       <v-spacer></v-spacer>
- <v-btn
-      text
-      @click="gotoManage ()">
-      หน้าจัดการข้อมูล
-      </v-btn>
+
       <v-btn
-      text
-        @click="goToLogin()"
+       text
+       @click="goTologin()"
       >
         <span class="mr-2">Login</span>
         <v-icon>mdi-open-in-new</v-icon>
+      </v-btn>
+
+      <v-btn
+        text
+        @click="goTomanage()"
+      >
+      หน้าจัดการข้อมูล
+
+
+      </v-btn>
+      <v-btn
+        text
+        @click="goToConnect()"
+      >
+      Connect Backend
+
+
       </v-btn>
     </v-app-bar>
 
@@ -55,11 +68,14 @@ export default {
     //
   }),
   methods: {
-    goToLogin () {
-      this.$router.push({ path:'/login' }).catch(() => {})
+    goTologin () {
+      this.$router.push({ path:'/login'}).catch(()=>{})
     },
-    gotoManage () {
-      this.$router.push({path:'/managetable'}).catch(() => {})
+    goTomanage () {
+      this.$router.push({ path:'/manageTable'}).catch(()=>{})
+    },
+    goTotableStudent() {
+      this.$router.push({ path:'/tableStudent'}).catch(()=>{})
     }
   }
 }

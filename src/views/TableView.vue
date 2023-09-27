@@ -5,18 +5,16 @@
             <Table/>
         </v-col>
     </v-row>
-
   </v-container>
 </template>
 
 <script>
 export default {
-    components:{
-        Table:() => import('../components/table.vue')
+    components: {
+        Table: () => import('../components/Table.vue')
     }
 }
 </script>
 
 <style>
-
 </style>

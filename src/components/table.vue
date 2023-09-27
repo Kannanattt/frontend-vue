@@ -2,7 +2,7 @@
   <div>
     <v-data-table
       :headers="headers"
-      :items="employeeItem"
+      :items="desserts"
       sort-by="calories"
       class="elevation-1"
     >
@@ -10,32 +10,38 @@
         <v-toolbar flat>
           <v-toolbar-title>จัดการข้อมูล</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="primary"
-            dark
-            class="mb-2"
-            @click="openDialog('add', defaultItem)"
-          >
-            เพิ่มข้อมูล
-          </v-btn>
+          <v-spacer>
+            <v-btn
+              color="primary"
+              dark
+              class="mb-2"
+              @click="openDialog('add', defaultItem)"
+            >
+              เพิ่มข้อมูล
+            </v-btn>
+          </v-spacer>
         </v-toolbar>
       </template>
-
-      <template v-slot:[`item.role`]="{ item }">
-        {{ item.role.name }}
-      </template>
       <template v-slot:[`item.actions`]="{ item }">
-        <v-icon small class="mr-2" @click="openDialog('edit', item)">
-          mdi-pencil
-        </v-icon>
-        <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+        <v-btn small outlined @click="openDialog('edit', item)" color="blue">
+          <v-icon> mdi-pencil </v-icon>
+        </v-btn>
+
+        <v-btn
+          small
+          outlined
+          @click="deleteItem(item)"
+          color="red"
+          class="ml-2"
+        >
+          <v-icon> mdi-delete </v-icon>
+        </v-btn>
       </template>
       <template v-slot:no-data>
         <v-btn color="primary" @click="initialize"> Reset </v-btn>
       </template>
     </v-data-table>
-    <v-dialog v-model="dialog" max-width="500px">
+    <v-dialog v-model="dialogCreate" max-width="500px">
       <v-card>
         <v-card-title>
           <span class="text-h5">{{ formTitle }}</span>
@@ -45,16 +51,34 @@
           <v-container>
             <v-row>
               <v-col cols="12" sm="6" md="4">
-                <v-text-field v-model="firstname" label="ชื่อ"></v-text-field>
+                <v-text-field
+                  v-model="editedItem.name"
+                  label="Dessert name"
+                ></v-text-field>
               </v-col>
               <v-col cols="12" sm="6" md="4">
-                <v-text-field v-model="lastname" label="นามสกุล"></v-text-field>
+                <v-text-field
+                  v-model="editedItem.calories"
+                  label="Calories"
+                ></v-text-field>
               </v-col>
               <v-col cols="12" sm="6" md="4">
-                <v-text-field v-model="sarary" label="เงินเดือน"></v-text-field>
+                <v-text-field
+                  v-model="editedItem.fat"
+                  label="Fat (g)"
+                ></v-text-field>
               </v-col>
               <v-col cols="12" sm="6" md="4">
-                <v-text-field v-model="roles" label="ตำแหน่ง"></v-text-field>
+                <v-text-field
+                  v-model="editedItem.carbs"
+                  label="Carbs (g)"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4">
+                <v-text-field
+                  v-model="editedItem.protein"
+                  label="Protein (g)"
+                ></v-text-field>
               </v-col>
             </v-row>
           </v-container>
@@ -62,11 +86,9 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="closeDelete()">
-            ยกเลิก
-          </v-btn>
-          <v-btn color="blue darken-1" text @click="save(formTitle)">
-            บันทึกข้อมูล
+          <v-btn color="blue darken-1" text @click="close"> Cancel </v-btn>
+          <v-btn color="blue darken-1" text @click="save('เพิ่มข้อมูล')">
+            Save
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -88,33 +110,25 @@
     </v-dialog>
   </div>
 </template>
-
-<script>
+  <script>
 export default {
   data: () => ({
-    firstname : '',
-    lastname : '',
-    sarary: '',
-    roles : '',
-    
-
-    dialog: false,
+    dialogCreate: false,
     dialogDelete: false,
     headers: [
       {
-        text: "ไอดี",
+        text: "Dessert (100g serving)",
         align: "start",
         sortable: false,
-        value: "id",
+        value: "name",
       },
-      { text: "ชื่อ", value: "firstName" },
-      { text: "นามสกุล", value: "lastName" },
-      { text: "เงินเดือน", value: "sarary" },
-      { text: "ตำแหน่ง", value: "role" },
+      { text: "Calories", value: "calories" },
+      { text: "Fat (g)", value: "fat" },
+      { text: "Carbs (g)", value: "carbs" },
+      { text: "Protein (g)", value: "protein" },
       { text: "Actions", value: "actions", sortable: false },
     ],
-
-    employeeItem: [],
+    desserts: [],
     editedIndex: -1,
     editedItem: {
       name: "",
@@ -131,10 +145,7 @@ export default {
       protein: 0,
     },
     formTitle: "",
-    idEmpployee:"",
-    idFordelete: ""
   }),
-
   watch: {
     dialog(val) {
       val || this.close();
@@ -143,128 +154,137 @@ export default {
       val || this.closeDelete();
     },
   },
-
   created() {
     this.initialize();
   },
-
   methods: {
-    async initialize() {
-     this.employeeItem = []
-     try{
-      var data = await this.axios.get('http://localhost:9000/employee')
-      console.log('data employee ====>', data)
-      this.employeeItem = data.data
-     }catch(error){
-
-     }
-    },
-
+    initialize() {},
     openDialog(Action, item) {
-      // console.log(Action,item);
+      //console.log(Action, item)
       this.formTitle = "";
       if (Action === "add") {
-        this.dialog = true
-        this.formTitle = "เพิ่มข้อมูล"
-        this.editItem = item
+        this.editedItem = item;
+        this.formTitle = "เพิ่มข้อมูล";
+        this.dialogCreate = true;
       } else {
-        console.log(Action,item);
-        this.dialog = true;
-        this.formTitle = 'แก้ไขข้อมูล'
-        // this.editedIndex = this.desserts.indexOf(item);
-        // this.editedItem = item;
-        this.firstname = item.firstName
-        this.lastname = item.lastName
-        this.sarary = item.sarary
-        this.roles = item.role.name
-        this.idEmpployee = item.id
-
-
-
+        this.formTitle = "แก้ไขข้อมูล";
+        this.editedIndex = this.desserts.indexOf(item);
+        this.editedItem = item;
+        this.dialogCreate = true;
       }
+    },
+    initialize() {
+      this.desserts = [
+        {
+          name: "Frozen Yogurt",
+          calories: 159,
+          fat: 6.0,
+          carbs: 24,
+          protein: 4.0,
+        },
+        {
+          name: "Ice cream sandwich",
+          calories: 237,
+          fat: 9.0,
+          carbs: 37,
+          protein: 4.3,
+        },
+        {
+          name: "Eclair",
+          calories: 262,
+          fat: 16.0,
+          carbs: 23,
+          protein: 6.0,
+        },
+        {
+          name: "Cupcake",
+          calories: 305,
+          fat: 3.7,
+          carbs: 67,
+          protein: 4.3,
+        },
+        {
+          name: "Gingerbread",
+          calories: 356,
+          fat: 16.0,
+          carbs: 49,
+          protein: 3.9,
+        },
+        {
+          name: "Jelly bean",
+          calories: 375,
+          fat: 0.0,
+          carbs: 94,
+          protein: 0.0,
+        },
+        {
+          name: "Lollipop",
+          calories: 392,
+          fat: 0.2,
+          carbs: 98,
+          protein: 0,
+        },
+        {
+          name: "Honeycomb",
+          calories: 408,
+          fat: 3.2,
+          carbs: 87,
+          protein: 6.5,
+        },
+        {
+          name: "Donut",
+          calories: 452,
+          fat: 25.0,
+          carbs: 51,
+          protein: 4.9,
+        },
+        {
+          name: "KitKat",
+          calories: 518,
+          fat: 26.0,
+          carbs: 65,
+          protein: 7,
+        },
+      ];
     },
     editItem(item) {
-    //   console.log("item select", item);
-    //   console.log("item item", this.desserts.indexOf(item));
-
       this.editedIndex = this.desserts.indexOf(item);
-      this.editedItem = Object.assign({}, item);
+      this.editedItem = item;
       this.dialog = true;
     },
-
     deleteItem(item) {
-      this.idFordelete = item.id
-      this.dialogDelete = true
+      this.editedIndex = this.desserts.indexOf(item);
+      this.editedItem = item;
+      this.dialogDelete = true;
     },
-
-    async deleteItemConfirm() {
-      try{
-        var response = await this.axios.delete('http://localhost:9000/employee/' + this.idFordelete)
-        this.initialize()
-      }catch(error){
-        console.log(error.massage)
-      }
-      this.closeDelete()
-    },
-
-
-
-    closeDelete() {
-      this.dialogDelete = false
-      this.editedItem = []
-      this.editedIndex= -1
+    deleteItemConfirm() {
+      this.desserts.splice(this.editedIndex, 1);
+      this.closeDelete();
     },
     close() {
-     this.dialog = false
-     this.firstname = '',
-     this.lastname= '',
-     this.sarary='',
-     this.roles=''
+      this.dialogCreate = false;
+      this.editedItem = [];
+      this.defaultItem = {
+        name: "",
+        calories: 0,
+        fat: 0,
+        carbs: 0,
+        protein: 0,
+      };
     },
-    async save(action) {
-      var data = {
-
-        firstName :this.firstname,
-        lastName : this.lastname,
-        sarary : this.sarary,
-        role: {
-          name : this.roles
-        },
-        skills:[
-          {
-            skill:''
-          }
-        ]
-
-      }
+    closeDelete() {
+      this.dialogDelete = false;
+      this.editedItem = [];
+      this.editedIndex = -1;
+    }, // Remove the extra comma here
+    save(action) {
       if (action === "เพิ่มข้อมูล") {
-        // this.desserts.push(this.editedItem);
-        // this.dialog = false;
-        // this.close();
-        console.log('data after send ====>',data)
-        try{
-          var dataResponse = await this.axios.post('http://localhost:9000/employee',data)
-          // console.log('dataReponse ===>', dataResponse)
-          this.close()
-          this.initialize()
-        }catch(error){
-            console.log(error.massage)
-        }
-      } else{
-        try{
-          var dataReponseEdit = await this.axios.put('http://localhost:9000/employee/' + this.idEmpployee, data)
-          this.close()
-          this.initialize()
-        }catch(error){
-          console.log(error.massage)
-
-        }
-        Object.assign(this.desserts[this.editedIndex], this.editItem)
+        this.desserts.push(this.editedItem);
+      } else {
+        Object.assign(this.desserts[this.editedIndex], this.editedItem);
       }
-      this.close()
+      this.close();
     },
   },
 };
 </script>
-
-<style></style>

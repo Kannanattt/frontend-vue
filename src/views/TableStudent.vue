@@ -21,23 +21,14 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    component: () => import('../views/LoginView.vue')
-    
+    component: () => import( '../views/LoginView.vue')
   },
   {
-    path: '/manageTable',
-    name: 'manageTable',
+    path: '/managetable',
+    name: 'managetable',
     component: () => import('../views/TableView.vue')
-    
-  },
-  {
-    path: '/tableStudent',
-    name: 'tableStudent',
-    component: () => import('../views/tableStudentView.vue')
-    
   }
 ]
-
 
 const router = new VueRouter({
   mode: 'history',

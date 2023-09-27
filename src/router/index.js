@@ -27,6 +27,11 @@ const routes = [
     path: '/managetable',
     name: 'managetable',
     component: () => import('../views/TableView.vue')
+  },
+  {
+    path: '/tableStudent',
+    name: 'tableStudent',
+    component: () => import('../views/tableStudent.vue')
   }
 ]
 
